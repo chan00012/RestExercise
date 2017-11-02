@@ -5,15 +5,18 @@ import java.util.Date;
 import java.util.Scanner;
 
 import com.lotus.phonebook.customeexceptions.*;
+import com.lotus.phonebook.implementors.PhonebookImplementor;
 import com.lotus.phonebook.implementors.Validator;
 
 public class PhonebookApp {
 	
-	public Scanner userInput;
 	private boolean menuLoop;
+	private Scanner userInput;
+	private PhonebookImplementor pbImpl;
 	
 	PhonebookApp(){
 		userInput = new Scanner(System.in);
+		pbImpl = new PhonebookImplementor();
 	}
 
 	public void printMenu() {
@@ -22,8 +25,8 @@ public class PhonebookApp {
 			System.out.println("------------------------------------");
 			System.out.println("WELCOME TO PETMALU PHONEBOOK APP");
 			System.out.println("[1] List all contacts");
-			System.out.println("[2] Show contacts");
-			System.out.println("[3] Search a contact");
+			System.out.println("[2] Show contact");
+			System.out.println("[3] Search a contacts");
 			System.out.println("[4] Delelte contact");
 			System.out.println("[5] Create contact");
 			System.out.println("[6] Update contact");
@@ -39,9 +42,18 @@ public class PhonebookApp {
 		
 		if(option.equals("0")) {
 			menuLoop = false;
+		} else if(option.equals("1")) {
+			pbImpl.listAllContacts();
+		} else if(option.equals("2")){
+			askUserWhoToFind();
+		} else if(option.equals("3")) { 
+			askUserQueryToFind();
+		} else if(option.equals("4")) {
+			askUserWhoToDelete();
 		} else if(option.equals("5")) {
 			askContactDetailsAndValidate();
-
+		} else if(option.equals("6")) {
+			askUserWhoToUpdate();
 		}
 	}
 	
@@ -52,13 +64,18 @@ public class PhonebookApp {
 			Date birthday = askBirthdayAndValidate();
 			String companyCode = askCompanyCodeAndValidate();
 			boolean vip = askIfVip();
+			pbImpl.createContact(name, contactNo, birthday, companyCode, vip);
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
 		} catch (NameException e) {
 			System.out.println(e.getMessage());
 		} catch (NumberException e) {
 			System.out.println(e.getMessage());
-		}	
+		} catch (IllegalArgumentException e) {
+			System.out.println("[SYSTEM MSG] Company doesn't exist.\n");
+		} catch (VipException e) {
+			System.out.println(e.getMessage());
+		}
 	}	
 	
 	public String askNameAndValidate() throws NameException {	
@@ -86,44 +103,77 @@ public class PhonebookApp {
 	public Date askBirthdayAndValidate() throws ParseException {	
 		System.out.println("\n[Birthday]");
 		System.out.println("Note:");
-		System.out.println("1. follow this format MM.DD.YY");
+		System.out.println("1. follow this format MM.DD.YYYY");
 		System.out.println("2. You can leave this as blank.\n");
 		System.out.print("Please enter your birthday: ");
-		
-		String inputDate = userInput.nextLine().trim();
-		
+		String inputDate = userInput.nextLine().trim();	
 		if(inputDate.isEmpty()) {
 			return null;
 		}
 		else {
-			SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yy");
+			SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy");
 			Date date = sdf.parse(inputDate);
 			return date;
 		}
 	}
 	
-	public String askCompanyCodeAndValidate() {	
+	public String askCompanyCodeAndValidate() throws IllegalArgumentException {	
 		System.out.println("\n[Company]");
+		System.out.println("You can leave this as blank.");
 		System.out.println("Company\t\t Code");
 		System.out.println("Betica\t\t BETCA");
 		System.out.println("Lotus labs\t LOTUS");
 		System.out.println("Petmalu Corp.\t PTMLU");
 		System.out.println("Idolo Inc.\t OLODI");
 		System.out.print("\nPlease enter your company code: ");
-		return userInput.nextLine().trim();
+		String companyCode = userInput.nextLine().toUpperCase().trim();
+		if(companyCode.isEmpty()) {
+			return null;
+		} else {
+			Validator.validateCompanyCode(companyCode);
+			return companyCode;
+		}
 	}
 
-	public boolean askIfVip() {
+	public boolean askIfVip() throws VipException {
 		System.out.println("\n[VIP]");
 		System.out.print("Are you a VIP? (y/n): ");
 		String response = userInput.nextLine().trim().toLowerCase();
-		if(response.equals("y")) {
-			return true;
-		} else if(response.equals("n")) {
-			return false;
-		} else {
-			return false;
-		}
+		return Validator.validateIfVip(response);
 
+	}
+
+	public void askUserWhoToFind(){
+		System.out.print("Please enter contact to find: ");
+		String contact = userInput.nextLine();
+		pbImpl.showContact(contact);
+	}
+
+	public void askUserQueryToFind() {
+		System.out.print("Please enter query to find: ");
+		String query = userInput.nextLine();
+		pbImpl.searchContactByQuery(query);
+	}
+
+	public void askUserWhoToDelete() {
+		System.out.print("Please enter contact to delete: ");
+		String contact = userInput.nextLine();	
+		pbImpl.deleteContact(contact);
+	}
+	
+	public void askUserWhoToUpdate() {
+		System.out.println("Please enter the ff. contact details to update: ");
+		try {
+			String name = askNameAndValidate();
+			System.out.print("[NEW]");
+			String contactNo = askContactAndValidate();
+			pbImpl.updateContact(name, contactNo);
+		} catch (NameException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		} catch (NumberException e) {
+			System.out.println(e.getMessage());
+			e.printStackTrace();
+		}
 	}
 }

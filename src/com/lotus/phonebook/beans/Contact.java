@@ -47,5 +47,11 @@ public class Contact {
 		this.contactNo = contactNo;
 	}
 
-	
+	public int vipStatus() {
+		if(this.isVip.equals(true)) {
+			return 1;
+		} else {
+			return 0;
+		}
+	}
 }
