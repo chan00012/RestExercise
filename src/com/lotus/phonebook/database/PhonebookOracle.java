@@ -72,7 +72,7 @@ public class PhonebookOracle implements PhonebookOracleInterface {
 		connectPhonebookDatabase();
 		String sql = "SELECT a.contact_name, a.contact_no, a.contact_bday, a.contact_vip, b.company_code, b.company_name, b.company_description "
 				+ "FROM contact a "
-				+ "FULL JOIN company b "
+				+ "LEFT JOIN company b "
 				+ "ON a.company_id = b.company_id";
 		
 		displayHeader();
@@ -84,7 +84,7 @@ public class PhonebookOracle implements PhonebookOracleInterface {
 		connectPhonebookDatabase();
 		String sql = "SELECT a.contact_name, a.contact_no, a.contact_bday, a.contact_vip, b.company_code, b.company_name, b.company_description "
 				+ "FROM contact a "
-				+ "FULL JOIN company b "
+				+ "LEFT JOIN company b "
 				+ "ON a.company_id = b.company_id "
 				+ "WHERE a.contact_name = '"+ name +"'";
 		
@@ -100,7 +100,7 @@ public class PhonebookOracle implements PhonebookOracleInterface {
 		connectPhonebookDatabase();
 		String sql = "SELECT a.contact_name, a.contact_no, a.contact_bday, a.contact_vip, b.company_code, b.company_name, b.company_description "
 				+ "FROM contact a "
-				+ "FULL JOIN company b "
+				+ "LEFT JOIN company b "
 				+ "ON a.company_id = b.company_id "
 				+ "WHERE a.contact_name LIKE '%" + query + "%' OR a.contact_no LIKE '%" + query +"%'" ;
 		
@@ -147,7 +147,6 @@ public class PhonebookOracle implements PhonebookOracleInterface {
 	public void deleteContact(String name) {
 		connectPhonebookDatabase();
 		String sql = "DELETE FROM contact WHERE contact_name = '"+ name + "'";
-		System.out.println(sql);
 		try {
 			Statement statement = connection.createStatement();
 			statement.executeUpdate(sql);
