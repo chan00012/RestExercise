@@ -13,6 +13,20 @@ public final class Validator {
 		checkNameLength(name);
 	}
 	
+	public static void validateCompanyCode(String companyCode) throws IllegalArgumentException {
+		CompanyCode.valueOf(companyCode);	
+	}
+	
+	public static boolean validateIfVip(String vip) throws VipException {
+		if(vip.equals("y")) {
+			return true;
+		} else if(vip.equals("n")) {
+			return false;
+		} else {
+			throw new VipException("[SYSTEM MSG] Invalid choice.\n");
+		}
+	}
+	
 	private static void checkIfNameHaveSpecChar(String name) throws NameException {
 		for(int i=0; i<name.length(); i++) {
 			if(name.charAt(i) == ' ') {
@@ -51,19 +65,4 @@ public final class Validator {
 		}
 	}
 	
-	public static void validateCompanyCode(String companyCode) throws IllegalArgumentException {
-		CompanyCode.valueOf(companyCode);	
-	}
-	
-	public static boolean validateIfVip(String vip) throws VipException {
-		if(vip.equals("y")) {
-			return true;
-		} else if(vip.equals("n")) {
-			return false;
-		} else {
-			throw new VipException("[SYSTEM MSG] Invalid choice.\n");
-		}
-	}
-		
 }
-

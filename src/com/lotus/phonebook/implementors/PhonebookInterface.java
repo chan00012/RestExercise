@@ -1,18 +1,20 @@
 package com.lotus.phonebook.implementors;
 
 import java.util.Date;
+import java.util.List;
 
-public interface PhonebookInterface {
+import com.lotus.phonebook.beans.ContactCompany;
+import com.lotus.phonebook.customeexceptions.NameException;
 
-	void createContact(String name, String contactNo, Date bday, String company_id, boolean vip);
+public interface PhonebookInterface{
 	
-	void listAllContacts();
-	
-	void showContact(String name);
-	
-	void searchContactByQuery(String query);
-	
-	void deleteContact(String name);
-	
-	void updateContact(String name, String contactNo);
+	void createContact(String name ,String contactNo ,Date birthday ,String companyCode ,boolean vip);
+	void displayContactWithCompany();
+	void displayContactWithCompany(ContactCompany contactCompany);
+	void displayContactWithCompany(String query) throws NameException;
+	void deleteContact(String name) throws NameException;
+	void updateContact(String name, String contactNo, String ccode, boolean vip) throws NameException;
+	List<ContactCompany> listContactWithCompany();
+	List<ContactCompany> listContactWithCompany(String query);
+	ContactCompany getSpecificContact(String name) throws NameException;
 }

@@ -4,19 +4,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
+import com.lotus.phonebook.beans.ContactCompany;
 import com.lotus.phonebook.customeexceptions.*;
 import com.lotus.phonebook.implementors.PhonebookImplementor;
+import com.lotus.phonebook.implementors.PhonebookInterface;
 import com.lotus.phonebook.implementors.Validator;
 
 public class PhonebookApp {
 	
 	private boolean menuLoop;
 	private Scanner userInput;
-	private PhonebookImplementor pbImpl;
+	private PhonebookInterface pi;
 	
 	PhonebookApp(){
 		userInput = new Scanner(System.in);
-		pbImpl = new PhonebookImplementor();
+		pi = new PhonebookImplementor();
 	}
 
 	public void printMenu() {
@@ -43,7 +45,7 @@ public class PhonebookApp {
 		if(option.equals("0")) {
 			menuLoop = false;
 		} else if(option.equals("1")) {
-			pbImpl.listAllContacts();
+			pi.displayContactWithCompany();
 		} else if(option.equals("2")){
 			askUserWhoToFind();
 		} else if(option.equals("3")) { 
@@ -63,8 +65,13 @@ public class PhonebookApp {
 			String contactNo = askContactAndValidate();
 			Date birthday = askBirthdayAndValidate();
 			String companyCode = askCompanyCodeAndValidate();
-			boolean vip = askIfVip();
-			pbImpl.createContact(name, contactNo, birthday, companyCode, vip);
+			boolean vip = false;
+				if(companyCode != null) {
+					vip = askIfVip();
+				}	
+				
+			pi.createContact(name, contactNo, birthday, companyCode, vip);
+			
 		} catch (ParseException e) {
 			System.out.println(e.getMessage());
 		} catch (NameException e) {
@@ -78,6 +85,63 @@ public class PhonebookApp {
 		}
 	}	
 	
+	public void askUserWhoToFind(){
+		System.out.print("Please enter contact to find: ");
+		String contact = userInput.nextLine();
+		ContactCompany cc = null;
+		try {
+			cc = pi.getSpecificContact(contact);
+			pi.displayContactWithCompany(cc);
+		} catch (NameException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	public void askUserQueryToFind() {
+		System.out.print("Please enter query to find: ");
+		String query = userInput.nextLine();
+		try {
+			pi.displayContactWithCompany(query);
+		} catch (NameException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
+	public void askUserWhoToDelete() {
+		System.out.print("Please enter contact to delete: ");
+		String contact = userInput.nextLine();	
+		try {
+			pi.deleteContact(contact);
+		} catch (NameException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+	
+	public void askUserWhoToUpdate() {
+		System.out.println("Please enter the ff. contact details to update: ");
+		try {
+			String name = askNameAndValidate();
+			System.out.print("[NEW]");
+			String contactNo = askContactAndValidate();
+			System.out.print("[NEW]");
+			String companyCode = askCompanyCodeAndValidate();
+			boolean vip = false;
+				if(companyCode != null) {
+					System.out.print("[NEW]");
+					vip = askIfVip();
+				}
+			pi.updateContact(name, contactNo, companyCode, vip);
+				
+			
+		} catch (NameException e) {
+			System.out.println(e.getMessage());
+		} catch (NumberException e) {
+			System.out.println(e.getMessage());
+		} catch (VipException e) {
+			System.out.println(e.getMessage());
+		}
+	}
+
 	public String askNameAndValidate() throws NameException {	
 		System.out.println("\n[FULLNAME]");
 		System.out.println("Note:");
@@ -143,37 +207,4 @@ public class PhonebookApp {
 
 	}
 
-	public void askUserWhoToFind(){
-		System.out.print("Please enter contact to find: ");
-		String contact = userInput.nextLine();
-		pbImpl.showContact(contact);
-	}
-
-	public void askUserQueryToFind() {
-		System.out.print("Please enter query to find: ");
-		String query = userInput.nextLine();
-		pbImpl.searchContactByQuery(query);
-	}
-
-	public void askUserWhoToDelete() {
-		System.out.print("Please enter contact to delete: ");
-		String contact = userInput.nextLine();	
-		pbImpl.deleteContact(contact);
-	}
-	
-	public void askUserWhoToUpdate() {
-		System.out.println("Please enter the ff. contact details to update: ");
-		try {
-			String name = askNameAndValidate();
-			System.out.print("[NEW]");
-			String contactNo = askContactAndValidate();
-			pbImpl.updateContact(name, contactNo);
-		} catch (NameException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		} catch (NumberException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		}
-	}
 }
