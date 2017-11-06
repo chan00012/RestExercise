@@ -1,6 +1,8 @@
 package com.lotus.rest.api;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.ws.rs.Consumes;
@@ -73,11 +75,52 @@ public class Api {
 	@Path("create")
 	@POST
 	@Produces(MediaType.APPLICATION_JSON)
-	@Consumes(MediaType.APPLICATION_JSON)
-	public Response create(Contact contact) throws JSONException {
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response create(@FormParam("name") String name, @FormParam("contactNo") String contactNo, @FormParam("inputDate") String inputDate,
+			@FormParam("companyCode") String companyCode, @FormParam("vip") Boolean vip) throws JSONException {
 		JSONObject jsonObject = new JSONObject();
+		
 		try {
-			pImpl.createContact(contact.getName(),contact.getContactNo(), contact.getBirthdate() , "OLODI", contact.getIsVip());
+			SimpleDateFormat sdf = new SimpleDateFormat("MM.dd.yyyy");
+			Date birthday = sdf.parse(inputDate);
+			pImpl.createContact(name, contactNo, birthday, companyCode, vip);
+			jsonObject.put("success", true);
+		} catch (Exception e) {
+			jsonObject.put("success", false);
+			jsonObject.put("errorMessage", "Cannot save data.");
+		}
+		
+		return Response.status(200).entity(jsonObject.toString()).build();
+	}
+	
+	@Path("update")
+	@POST
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response update(@FormParam("name") String name, @FormParam("contactNo") String contactNo,
+			@FormParam("companyCode") String companyCode, @FormParam("vip") Boolean vip) throws JSONException {
+		JSONObject jsonObject = new JSONObject();
+		
+		try {
+			pImpl.updateContact(name, contactNo, companyCode, vip);
+			jsonObject.put("success", true);
+		} catch (Exception e) {
+			jsonObject.put("success", false);
+			jsonObject.put("errorMessage", "Cannot save data.");
+		}
+		
+		return Response.status(200).entity(jsonObject.toString()).build();
+	}
+	
+	@Path("delete/{name}")
+	@DELETE
+	@Produces(MediaType.APPLICATION_JSON)
+	@Consumes(MediaType.APPLICATION_FORM_URLENCODED)
+	public Response update(@PathParam("name") String name) throws JSONException {
+		JSONObject jsonObject = new JSONObject();
+		
+		try {
+			pImpl.deleteContact(name);
 			jsonObject.put("success", true);
 		} catch (Exception e) {
 			jsonObject.put("success", false);
